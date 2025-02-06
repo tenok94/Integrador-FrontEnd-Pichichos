@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://integrador-backt-end-pichichos.vercel.app",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 export default API;
