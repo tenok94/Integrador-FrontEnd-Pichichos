@@ -71,58 +71,6 @@ const Mascotas = () => {
     setSelectedMascota(null);
   };
 
-  // const handleSave = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  
-  //     // Asegurarse de que cliente_id esté definido
-  //     if (!selectedMascota.cliente_id) {
-  //       console.error("Cliente no seleccionado");
-  //       return;
-  //     }
-  
-  //     if (selectedMascota._id) {
-  //       // Actualizar mascota existente
-  //       const { data } = await API.put(
-  //         `/mascotas/${selectedMascota._id}`,
-  //         {
-  //           nombre: selectedMascota.nombre,
-  //           especie: selectedMascota.especie,
-  //           cliente_id: selectedMascota.cliente_id, // Aseguramos que se envíe cliente_id
-  //         },
-  //         {
-  //           headers: { Authorization: token },
-  //         }
-  //       );
-  //       // Actualizar la lista local
-  //       setMascotas((prev) =>
-  //         prev.map((m) =>
-  //           m._id === data._id ? data : m // Aseguramos que se actualicen todos los campos
-  //         )
-  //       );
-  //     } else {
-  //       // Crear nueva mascota
-  //       const { data } = await API.post(
-  //         "/mascotas",
-  //         {
-  //           nombre: selectedMascota.nombre,
-  //           especie: selectedMascota.especie,
-  //           cliente_id: selectedMascota.cliente_id, // Aseguramos que se envíe cliente_id
-  //         },
-  //         {
-  //           headers: { Authorization: token },
-  //         }
-  //       );
-  //       setMascotas((prev) => [...prev, data]);
-  //     }
-  //     handleClose();
-  //   } catch (error) {
-  //     console.error(
-  //       "Error al guardar mascota:",
-  //       error.response?.data || error.message
-  //     );
-  //   }
-  // };
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
