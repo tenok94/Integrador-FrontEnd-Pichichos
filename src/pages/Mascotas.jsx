@@ -71,32 +71,6 @@ const Mascotas = () => {
     setSelectedMascota(null);
   };
 
-  // Guardar mascota (crear o actualizar)
-  // const handleSave = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     if (selectedMascota._id) {
-  //       // Actualizar
-  //       await API.put(`/mascotas/${selectedMascota._id}`, selectedMascota, {
-  //         headers: { Authorization: token },
-  //       });
-  //       setMascotas((prev) =>
-  //         prev.map((m) =>
-  //           m._id === selectedMascota._id ? selectedMascota : m
-  //         )
-  //       );
-  //     } else {
-  //       // Crear nueva mascota
-  //       const { data } = await API.post("/mascotas", selectedMascota, {
-  //         headers: { Authorization: token },
-  //       });
-  //       setMascotas((prev) => [...prev, data]);
-  //     }
-  //     handleClose();
-  //   } catch (error) {
-  //     console.error("Error al guardar mascota:", error.response?.data || error.message);
-  //   }
-  // };
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -200,7 +174,7 @@ const Mascotas = () => {
                 <TableCell>{mascota.nombre}</TableCell>
                 <TableCell>{mascota.especie}</TableCell>
                 <TableCell>
-                  {clientes.find((c) => c._id === mascota.cliente)?.nombre || "Sin cliente"}
+                  {clientes.find((c) => c._id === mascota.cliente_id)?.nombre || "Sin cliente"}
                 </TableCell>
                 <TableCell>
                   <IconButton color="primary" onClick={() => handleOpen(mascota)}>
