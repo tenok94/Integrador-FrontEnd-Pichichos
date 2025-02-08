@@ -16,10 +16,10 @@ import {
   DialogActions,
   TextField,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
   MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -38,128 +38,90 @@ const Turnos = () => {
     notas: "",
   });
 
-  // Obtener turnos, mascotas y clientes del backend
+  // Obtener turnos, mascotas y clientes
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const [turnosData, mascotasData, clientesData] = await Promise.all([
+        const [turnosRes, mascotasRes, clientesRes] = await Promise.all([
           API.get("/turnos", { headers: { Authorization: token } }),
           API.get("/mascotas", { headers: { Authorization: token } }),
           API.get("/clientes", { headers: { Authorization: token } }),
         ]);
-        setTurnos(turnosData.data);
-        setMascotas(mascotasData.data);
-        setClientes(clientesData.data);
+
+        setTurnos(turnosRes.data);
+        setMascotas(mascotasRes.data);
+        setClientes(clientesRes.data);
       } catch (error) {
-        console.error("Error al obtener datos:", error.response?.data || error.message);
+        console.error("Error al cargar datos:", error.message);
       }
     };
+
     fetchData();
   }, []);
 
-  // Abrir el modal para agregar/editar turno
-  const handleOpen = (turno = null) => {
-    setSelectedTurno(
-      turno || { mascota: "", cliente: "", fecha: "", notas: "" }
-    );
-    setOpen(true);
-  };
-
-  // Cerrar el modal
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedTurno({ mascota: "", cliente: "", fecha: "", notas: "" });
-  };
-
-  // // Guardar turno (crear o actualizar)
-  // const handleSave = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-
-  //     if (selectedTurno._id) {
-  //       // Actualizar turno existente
-  //       const { data } = await API.put(`/turnos/${selectedTurno._id}`, selectedTurno, {
-  //         headers: { Authorization: token },
-  //       });
-  //       setTurnos((prev) =>
-  //         prev.map((t) => (t._id === data._id ? data : t))
-  //       );
-  //     } else {
-  //       // Crear nuevo turno
-  //       const { data } = await API.post("/turnos", selectedTurno, {
-  //         headers: { Authorization: token },
-  //       });
-  //       setTurnos((prev) => [...prev, data]);
-  //     }
-  //     handleClose();
-  //   } catch (error) {
-  //     console.error("Error al guardar turno:", error.response?.data || error.message);
-  //   }
-  // };
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
-  
       if (!selectedTurno.mascota || !selectedTurno.cliente) {
-        console.error("Error: Falta seleccionar mascota o cliente.");
+        console.error("Debe seleccionar una mascota y un cliente");
         return;
       }
-  
-      // Asegurar que se envían solo los IDs
-      const turnoData = {
-        mascota: typeof selectedTurno.mascota === "object" ? selectedTurno.mascota._id : selectedTurno.mascota,
-        cliente: typeof selectedTurno.cliente === "object" ? selectedTurno.cliente._id : selectedTurno.cliente,
-        fecha: selectedTurno.fecha,
-        notas: selectedTurno.notas,
-      };
-  
-      console.log("Datos enviados al backend:", turnoData);
-  
+
       if (selectedTurno._id) {
-        // Actualizar turno
-        const { data } = await API.put(`/turnos/${selectedTurno._id}`, turnoData, {
-          headers: { Authorization: token },
-        });
+        // Actualizar turno existente
+        const { data } = await API.put(
+          `/turnos/${selectedTurno._id}`,
+          selectedTurno,
+          { headers: { Authorization: token } }
+        );
         setTurnos((prev) =>
           prev.map((t) => (t._id === data._id ? data : t))
         );
       } else {
         // Crear nuevo turno
-        const { data } = await API.post("/turnos", turnoData, {
+        const { data } = await API.post("/turnos", selectedTurno, {
           headers: { Authorization: token },
         });
         setTurnos((prev) => [...prev, data]);
       }
+
       handleClose();
     } catch (error) {
-      console.error("Error al guardar turno:", error.response?.data || error.message);
+      console.error(
+        "Error al guardar turno:",
+        error.response?.data || error.message
+      );
     }
   };
-  
 
-  // Eliminar turno
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await API.delete(`/turnos/${id}`, { headers: { Authorization: token } });
+      await API.delete(`/turnos/${id}`, {
+        headers: { Authorization: token },
+      });
       setTurnos((prev) => prev.filter((t) => t._id !== id));
     } catch (error) {
-      console.error("Error al eliminar turno:", error.response?.data || error.message);
+      console.error("Error al eliminar turno:", error.message);
     }
   };
 
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedTurno({ mascota: "", cliente: "", fecha: "", notas: "" });
+  };
+
   return (
-    <Box sx={{ padding: 2 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box>
+      <Typography variant="h4" component="h1" gutterBottom>
         Lista de Turnos
       </Typography>
       <Button
         variant="contained"
         color="primary"
         startIcon={<AddCircleIcon />}
-        onClick={() => handleOpen()}
-        sx={{ marginBottom: 2 }}
+        onClick={() => setOpen(true)}
       >
         Nuevo Turno
       </Button>
@@ -177,8 +139,8 @@ const Turnos = () => {
           <TableBody>
             {turnos.map((turno) => (
               <TableRow key={turno._id}>
-                <TableCell>{turno.mascota?.nombre}</TableCell>
-                <TableCell>{turno.cliente?.nombre}</TableCell>
+                <TableCell>{turno.mascota?.nombre || "Sin mascota"}</TableCell>
+                <TableCell>{turno.cliente?.nombre || "Sin cliente"}</TableCell>
                 <TableCell>
                   {new Date(turno.fecha).toLocaleString("es-ES")}
                 </TableCell>
@@ -186,7 +148,10 @@ const Turnos = () => {
                 <TableCell>
                   <IconButton
                     color="primary"
-                    onClick={() => handleOpen(turno)}
+                    onClick={() => {
+                      setSelectedTurno(turno);
+                      setOpen(true);
+                    }}
                   >
                     <EditIcon />
                   </IconButton>
@@ -206,57 +171,49 @@ const Turnos = () => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{selectedTurno._id ? "Editar Turno" : "Nuevo Turno"}</DialogTitle>
         <DialogContent>
-          <FormControl fullWidth sx={{ marginBottom: 2 }}>
+          <FormControl fullWidth margin="normal">
             <InputLabel>Mascota</InputLabel>
             <Select
               value={selectedTurno.mascota}
               onChange={(e) =>
-                setSelectedTurno((prev) => ({
-                  ...prev,
-                  mascota: e.target.value,
-                }))
+                setSelectedTurno((prev) => ({ ...prev, mascota: e.target.value }))
               }
             >
-              {mascotas.map((mascota) => (
-                <MenuItem key={mascota._id} value={mascota._id}>
-                  {mascota.nombre}
+              {mascotas.map((m) => (
+                <MenuItem key={m._id} value={m._id}>
+                  {m.nombre}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth sx={{ marginBottom: 2 }}>
+          <FormControl fullWidth margin="normal">
             <InputLabel>Cliente</InputLabel>
             <Select
               value={selectedTurno.cliente}
               onChange={(e) =>
-                setSelectedTurno((prev) => ({
-                  ...prev,
-                  cliente: e.target.value,
-                }))
+                setSelectedTurno((prev) => ({ ...prev, cliente: e.target.value }))
               }
             >
-              {clientes.map((cliente) => (
-                <MenuItem key={cliente._id} value={cliente._id}>
-                  {cliente.nombre}
+              {clientes.map((c) => (
+                <MenuItem key={c._id} value={c._id}>
+                  {c.nombre}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
           <TextField
             fullWidth
+            margin="normal"
             label="Fecha"
             type="datetime-local"
             value={selectedTurno.fecha}
             onChange={(e) =>
               setSelectedTurno((prev) => ({ ...prev, fecha: e.target.value }))
             }
-            InputLabelProps={{
-              shrink: true,
-            }}
-            sx={{ marginBottom: 2 }}
           />
           <TextField
             fullWidth
+            margin="normal"
             label="Notas"
             value={selectedTurno.notas}
             onChange={(e) =>
